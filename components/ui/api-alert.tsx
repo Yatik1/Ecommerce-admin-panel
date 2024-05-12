@@ -49,7 +49,7 @@ export const ApiAlert:React.FC<ApiAlertProps> = ({
             {description}
         </code>
         <Button variant="outline" size="icon" onClick={onCopy}>
-            <Copy className="h-4 w-4"/>
+            <Copy className="h-4 w-4 dark:text-white"/>
         </Button>
       </AlertDescription>
     </Alert>

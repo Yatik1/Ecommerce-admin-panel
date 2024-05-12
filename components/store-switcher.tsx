@@ -59,9 +59,9 @@ export default function StoreSwitcher({
             role="combobox"
             aria-expanded={open}
             aria-label="Select a Store"
-            className={cn("w-[200px] justify-between" , className)}
+            className={cn("w-[200px] justify-between dark:text-white" , className)}
           >
-              <StoreIcon className="mr-2 h-4 w-4 " />
+              <StoreIcon className="mr-2 h-4 w-4" />
               {currentStore?.label}
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -74,7 +74,7 @@ export default function StoreSwitcher({
                 <CommandGroup heading="Stores">
                     {formattedItems.map((store) => (
                         <div
-                           className={`relative my-[0.3vh] flex cursor-pointer select-none items-center rounded-sm px-2 py-[0.7vh] text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground ${currentStore?.value !== store.value ? "opacity-70 bg-[#F1F5F9]" : ""}`}
+                           className={`relative my-[0.3vh] flex cursor-pointer select-none items-center rounded-sm px-2 py-[0.7vh] text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground ${currentStore?.value !== store.value ? "opacity-70 bg-[#F1F5F9] dark:bg-opacity-10" : ""}`}
                            key={store.value}
                            onClick={() => onStoreSelect(store)}
                         >

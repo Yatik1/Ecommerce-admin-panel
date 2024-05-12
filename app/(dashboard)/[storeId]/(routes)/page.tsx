@@ -1,7 +1,11 @@
+import { getGraphRevenue } from "@/actions/get-graph-revenue"
+import { getSaleCount } from "@/actions/get-sale-count"
+import { getStockCount } from "@/actions/get-stock-count"
+import { getTotalRevenue } from "@/actions/get-total-revenue"
+import Overview from "@/components/overview"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Heading } from "@/components/ui/heading"
 import { Separator } from "@/components/ui/separator"
-import prismadb from "@/lib/prismadb"
 import { formatter } from "@/lib/utils"
 import { CreditCard, IndianRupee, Package } from "lucide-react"
 
@@ -13,11 +17,10 @@ const DashboardPage : React.FC<DashBoardPageProps> = async({
   params
 }) => {
 
-  const store = await prismadb.store.findFirst({
-    where : {
-      id: params.storeId
-    }
-  })
+  const totalRevenue = await getTotalRevenue(params.storeId)
+  const saleCount = await getSaleCount(params.storeId)
+  const stockCount = await getStockCount(params.storeId)
+  const graphRevenue = await getGraphRevenue(params.storeId)
 
   return (
     <div className="flex-col">
@@ -34,7 +37,7 @@ const DashboardPage : React.FC<DashBoardPageProps> = async({
              </CardHeader>
              <CardContent>
                <div className="text-2xl font-bold">
-                {formatter.format(100)}
+                {formatter.format(totalRevenue)}
                </div>
              </CardContent>
            </Card>
@@ -47,7 +50,7 @@ const DashboardPage : React.FC<DashBoardPageProps> = async({
              </CardHeader>
              <CardContent>
                <div className="text-2xl font-bold">
-                +25
+                +{saleCount}
                </div>
              </CardContent>
            </Card>
@@ -60,11 +63,19 @@ const DashboardPage : React.FC<DashBoardPageProps> = async({
              </CardHeader>
              <CardContent>
                <div className="text-2xl font-bold">
-                 12
+                 {stockCount}
                </div>
              </CardContent>
            </Card>
          </div>
+         <Card className="col-span-4">
+           <CardHeader>
+             <CardTitle>Overview</CardTitle>
+           </CardHeader>
+           <CardContent className="pl-2">
+             <Overview data={graphRevenue} />
+           </CardContent>
+         </Card>
        </div>
     </div>
   )

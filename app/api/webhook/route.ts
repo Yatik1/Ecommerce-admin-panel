@@ -22,7 +22,6 @@ export async function POST(req:Request) {
    }
 
    const session = event.data.object as Stripe.Checkout.Session
-   console.log(session);
    
    const address = session?.customer_details?.address
 
@@ -61,7 +60,7 @@ export async function POST(req:Request) {
             }
         } ,
         data : {
-            isArchived:false   //true
+            isArchived:false //true
         }
     })
    }

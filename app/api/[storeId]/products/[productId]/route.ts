@@ -137,40 +137,110 @@ export async function PATCH(
 }
 
 export async function DELETE (
-    req:Request , 
-    {params} : {params : {storeId : string , productId :string}}
+    req: Request, 
+    {params}: {params: {storeId: string, productId: string}}
 ) {
     try {
-        const {userId} = auth() 
+        const {userId} = auth();
 
-        if(!userId) {
-            return new NextResponse("Unauthenticated" , {status:401})
+        if (!userId) {
+            return new NextResponse("Unauthenticated", {status: 401});
         }
 
-        if(!params.productId) {
-            return new NextResponse("Product ID is required" , {status: 400})
+        if (!params.productId) {
+            return new NextResponse("Product ID is required", {status: 400});
         }
 
         const storeByUserId = await prismadb.store.findFirst({
-            where : {
-                id:params.storeId,
+            where: {
+                id: params.storeId,
                 userId
             }
-        })
+        });
 
-        if(!storeByUserId){
-            return new NextResponse("Unauthorized" , {status : 403})
+        if (!storeByUserId) {
+            return new NextResponse("Unauthorized", {status: 403});
         }
 
-        const product = await prismadb.product.deleteMany({
-            where : {
-                id:params.productId,
+        // Check if there are any related order items or images
+        const relatedOrderItems = await prismadb.orderItem.findMany({
+            where: {
+                productId: params.productId
             }
-        })
-        return NextResponse.json(product)
+        });
+
+        const relatedImages = await prismadb.image.findMany({
+            where: {
+                productId: params.productId
+            }
+        });
+
+        if (relatedOrderItems.length > 0 || relatedImages.length > 0) {
+            // If there are related order items or images, delete them first
+            await Promise.all([
+                prismadb.orderItem.deleteMany({
+                    where: {
+                        productId: params.productId
+                    }
+                }),
+                prismadb.image.deleteMany({
+                    where: {
+                        productId: params.productId
+                    }
+                })
+            ]);
+        }
+
+        // Once related records are deleted (if any), delete the product
+        await prismadb.product.delete({
+            where: {
+                id: params.productId
+            }
+        });
+
+        return new NextResponse(null, {status: 204});
     } catch (error) {
-        console.log("[PRODUCTID_DELETE]",error);
-        return new NextResponse("Internal Error" , {status:500})
-        
+        console.log("[PRODUCT_DELETE]", error);
+        return new NextResponse("Internal Error", {status: 500});
     }
 }
+
+
+// export async function DELETE (
+//     req:Request , 
+//     {params} : {params : {storeId : string , productId :string}}
+// ) {
+//     try {
+//         const {userId} = auth() 
+
+//         if(!userId) {
+//             return new NextResponse("Unauthenticated" , {status:401})
+//         }
+
+//         if(!params.productId) {
+//             return new NextResponse("Product ID is required" , {status: 400})
+//         }
+
+//         const storeByUserId = await prismadb.store.findFirst({
+//             where : {
+//                 id:params.storeId,
+//                 userId
+//             }
+//         })
+
+//         if(!storeByUserId){
+//             return new NextResponse("Unauthorized" , {status : 403})
+//         }
+
+//         const product = await prismadb.product.deleteMany({
+//             where : {
+//                 id:params.productId,
+//             }
+//         })
+//         return NextResponse.json(product)
+//     } catch (error) {
+//         console.log("[PRODUCTID_DELETE]",error);
+//         return new NextResponse("Internal Error" , {status:500})
+        
+//     }
+// }
